@@ -2,10 +2,15 @@ import telebot
 import config
 import random
 
-
-from pyTelegramBotAPI.telebot import types
+from telebot import types
 
 bot = telebot.TeleBot(config.TOKEN)
+
+def caesar_cipher(text_message, shift):
+    pass
+
+def number_cipher(text_message):
+    pass
 
 @bot.message_handler(commands=['start'])
 def welcome(message):
@@ -14,47 +19,48 @@ def welcome(message):
 
     # keyboard
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("🎲 Рандомное число")
-    item2 = types.KeyboardButton("😊 Как дела?")
+    item1 = types.KeyboardButton("Decoding")
+    item2 = types.KeyboardButton("Encoding")
 
     markup.add(item1, item2)
 
-    bot.send_message(message.chat.id, "Добро пожаловать, {0.first_name}!\nЯ - <b>{1.first_name}</b>, бот созданный чтобы быть подопытным кроликом.".format(message.from_user, bot.get_me()),
+    bot.send_message(message.chat.id, "Hello there, {0.first_name}!\nMy name is - <b>{1.first_name}</b>, I will help you to secure your messages.".format(message.from_user, bot.get_me()),
         parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
 def lalala(message):
     if message.chat.type == 'private':
-        if message.text == '🎲 Рандомное число':
-            bot.send_message(message.chat.id, str(random.randint(0,100)))
-        elif message.text == '😊 Как дела?':
+        if message.text == 'Decoding':
+            bot.send_message(message.chat.id, str(random.randint(0, 100)))
+        elif message.text == 'Encoding':
 
             markup = types.InlineKeyboardMarkup(row_width=2)
-            item1 = types.InlineKeyboardButton("Хорошо", callback_data='good')
-            item2 = types.InlineKeyboardButton("Не очень", callback_data='bad')
+            item1 = types.InlineKeyboardButton("Caesar cipher", callback_data='caesar_cipher')
+            item2 = types.InlineKeyboardButton("Number cipher", callback_data='number_cipher')
 
             markup.add(item1, item2)
 
-            bot.send_message(message.chat.id, 'Отлично, сам как?', reply_markup=markup)
+            bot.send_message(message.chat.id, "Ok, let\'s do it", reply_markup=markup)
         else:
-            bot.send_message(message.chat.id, 'Я не знаю что ответить 😢')
-
+            bot.send_message(message.chat.id, 'Please choose something')
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
+    user_message = ""
     try:
         if call.message:
-            if call.data == 'good':
-                bot.send_message(call.message.chat.id, 'Вот и отличненько 😊')
-            elif call.data == 'bad':
-                bot.send_message(call.message.chat.id, 'Бывает 😢')
+            bot.send_message(call.message.chat.id, 'Please enter the text message')
+            if call.data == 'caesar_cipher':
+                pass
+            elif call.data == 'number_cipher':
+                pass
 
             # remove inline buttons
-            bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text="😊 Как дела?",
-                reply_markup=None)
+            #bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+            #    reply_markup=None)
 
             # show alert
-            bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
-                text="ЭТО ТЕСТОВОЕ УВЕДОМЛЕНИЕ!!11")
+            #bot.answer_callback_query(callback_query_id=call.id, show_alert=False,
+            #    text="ЭТО ТЕСТОВОЕ УВЕДОМЛЕНИЕ!!11")
 
     except Exception as e:
         print(repr(e))
