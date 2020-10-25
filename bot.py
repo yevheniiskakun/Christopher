@@ -6,15 +6,31 @@ from telebot import types
 
 bot = telebot.TeleBot(config.TOKEN)
 
+caesar_cipher_code = "ccc|"
+
 global choosen_cipher
 choosen_cipher = ""
 
 global user_message
 user_message = ""
 
+global encrypted_message
+global encrypted_message_code
+
 def caesar_cipher(text_message, shift):
    if shift != 0:
-    print("Caesar works")
+       letters_from_text = list(text_message)
+
+       encrypted_result = ""
+
+       for letter_of_text in letters_from_text:
+           encrypted_ord = ord(letter_of_text) - shift
+           encrypted_result = encrypted_result + (chr(encrypted_ord))
+
+       global encrypted_message
+       global encrypted_message_code
+       encrypted_message = encrypted_result
+       encrypted_message_code = caesar_cipher_code + str(shift)
 
 
 def number_cipher(text_message):
@@ -35,6 +51,10 @@ def welcome(message):
     bot.send_message(message.chat.id, "Hello there, {0.first_name}!\nMy name is - <b>{1.first_name}</b>, I will help you to secure your messages.".format(message.from_user, bot.get_me()),
         parse_mode='html', reply_markup=markup)
 
+@bot.message_handler(commands=['help'])
+def help(message):
+    bot.send_message(message.chat.id, "I can decode and encode messages. To do it use the given instructions")
+
 @bot.message_handler(content_types=['text'])
 def main_loop(message):
     if message.chat.type == 'private':
@@ -53,12 +73,21 @@ def main_loop(message):
         else:
             global user_message
             shift = 0
+            global encrypted_message
+            global encrypted_message_code
+            encrypted_message = ""
+            encrypted_message_code = ""
             if choosen_cipher == "caesar_cipher":
                 if user_message == "":
                     user_message = message.text
+                    bot.send_message(message.chat.id, "Please enter the key")
                 else:
-                    shift = message.text
+                    shift = int(message.text)
+                    if shift == 0 or shift > 22:
+                        bot.send_message(message.chat.id, "Please choose another key")
                 caesar_cipher(user_message, shift)
+                bot.send_message(message.chat.id, encrypted_message)
+                bot.send_message(message.chat.id, encrypted_message_code)
             elif choosen_cipher == "number_cipher":
                 bot.send_message(message.chat.id, "You choose Number")
             else:
