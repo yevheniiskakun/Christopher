@@ -6,8 +6,16 @@ from telebot import types
 
 bot = telebot.TeleBot(config.TOKEN)
 
+global choosen_cipher
+choosen_cipher = ""
+
+global user_message
+user_message = ""
+
 def caesar_cipher(text_message, shift):
-    pass
+   if shift != 0:
+    print("Caesar works")
+
 
 def number_cipher(text_message):
     pass
@@ -28,10 +36,10 @@ def welcome(message):
         parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
-def lalala(message):
+def main_loop(message):
     if message.chat.type == 'private':
         if message.text == 'Decoding':
-            bot.send_message(message.chat.id, str(random.randint(0, 100)))
+            pass
         elif message.text == 'Encoding':
 
             markup = types.InlineKeyboardMarkup(row_width=2)
@@ -41,18 +49,34 @@ def lalala(message):
             markup.add(item1, item2)
 
             bot.send_message(message.chat.id, "Ok, let\'s do it", reply_markup=markup)
+
         else:
-            bot.send_message(message.chat.id, 'Please choose something')
+            global user_message
+            shift = 0
+            if choosen_cipher == "caesar_cipher":
+                if user_message == "":
+                    user_message = message.text
+                else:
+                    shift = message.text
+                caesar_cipher(user_message, shift)
+            elif choosen_cipher == "number_cipher":
+                bot.send_message(message.chat.id, "You choose Number")
+            else:
+                bot.send_message(message.chat.id, "Please choose something")
+
+
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     user_message = ""
     try:
         if call.message:
-            bot.send_message(call.message.chat.id, 'Please enter the text message')
+            global choosen_cipher
             if call.data == 'caesar_cipher':
-                pass
+                choosen_cipher = "caesar_cipher"
             elif call.data == 'number_cipher':
-                pass
+                choosen_cipher = "number_cipher"
+
+            bot.send_message(call.message.chat.id, "Please enter your message")
 
             # remove inline buttons
             #bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
@@ -64,6 +88,7 @@ def callback_inline(call):
 
     except Exception as e:
         print(repr(e))
+
 
 # RUN
 bot.polling(none_stop=True)
