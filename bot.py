@@ -25,18 +25,26 @@ def welcome(message):
 def main(message):
   if message.chat.type == 'private':
     if key in message.text:
-      message_before_decoding = message.text
-      print("Decoding")
-      message_list = list(message_before_decoding)
 
-      bot.send_message(message.chat.id, str(message_list))
+      decoded_message = ""
+      print("Decoding")
+      message_before_decoding = message.text
+      message_before_decoding_list = message_before_decoding.split(delimiter)
+      for i in message_before_decoding_list:
+        if i != "":
+          part = str(chr(int(i))) + ""
+          decoded_message += part
+
+      bot.send_message(message.chat.id, str(decoded_message))
     else:
+      encoded_message = ""
       print("Encoding")
       message_before_encoding = message.text
-      message_list = list(message_before_encoding)
+      for i in message_before_encoding:
+        part = str(ord(i)) + delimiter
+        encoded_message += part
 
-
-      bot.send_message(message.chat.id, str(message_list))
+      bot.send_message(message.chat.id, str(encoded_message))
 
 
 
