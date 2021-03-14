@@ -1,3 +1,3 @@
 # Christopher
-Encryption and decryption Telegram bot.
+Simple Telegram bot for Encryption and decryption.
 Link: t.me/ChristopherBot
