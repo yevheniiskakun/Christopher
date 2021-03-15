@@ -6,7 +6,33 @@ from telebot import types
 bot = telebot.TeleBot(config.TOKEN)
 
 delimiter = ","
-key = '@~'
+keys = ['@~']
+
+ascii_key = "@~"
+
+final_message = ""
+
+
+def ascii_decoder(message):
+  decoded_message = ""
+  message_before_decoding = message.replace(ascii_key, "")
+  message_before_decoding_list = message_before_decoding.split(delimiter)
+  for i in message_before_decoding_list:
+    if i != "":
+      part = str(chr(int(i))) + ""
+      decoded_message += part
+  global final_message
+  final_message = str(decoded_message)
+
+
+def ascii_encoder(message):
+  encoded_message = ""
+  for i in message:
+    part = str(ord(i)) + delimiter
+    encoded_message += part
+  encoded_message = str(ascii_key + encoded_message)
+  global final_message
+  final_message = str(encoded_message)
 
 
 @bot.message_handler(commands=['start'])
@@ -28,29 +54,18 @@ def welcome(message):
 @bot.message_handler(content_types=['text'])
 def main(message):
   if message.chat.type == 'private':
-    if key in message.text:
+    if any(word in message.text for word in keys):
+      #print("Decoding")
+      if ascii_key in message.text:
+        message_before_decoding = message.text
+        ascii_decoder(message_before_decoding)
 
-      decoded_message = ""
-      print("Decoding")
-      message_before_decoding = message.text
-      message_before_decoding = message_before_decoding.replace(key, "")
-      message_before_decoding_list = message_before_decoding.split(delimiter)
-      for i in message_before_decoding_list:
-        if i != "":
-          part = str(chr(int(i))) + ""
-          decoded_message += part
-
-      bot.send_message(message.chat.id, str(decoded_message))
     else:
-      encoded_message = ""
-      print("Encoding")
+      #print("Encoding")
       message_before_encoding = message.text
-      for i in message_before_encoding:
-        part = str(ord(i)) + delimiter
-        encoded_message += part
-      encoded_message = str(key + encoded_message)
-      bot.send_message(message.chat.id, encoded_message)
+      ascii_encoder(message_before_encoding)
 
+    bot.send_message(message.chat.id, final_message)
 
 
 # RUN
